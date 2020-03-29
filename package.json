@@ -12,6 +12,7 @@
     "serverless-google-cloudfunctions": "^2.4.2"
   },
   "dependencies": {
-    "@slack/web-api": "^5.8.0"
+    "@slack/web-api": "^5.8.0",
+    "got": "^10.7.0"
   }
 }
