@@ -34,6 +34,7 @@ package:
     - .idea/**
     - .vscode/**
     - .env.example
+    - "*.png"
 
 functions:
   slashCommand:

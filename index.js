@@ -8,7 +8,6 @@ const webhook = new IncomingWebhook(webhookUrl);
 const got = require('got');
 const sheetyApi = got.extend({
     prefixUrl: process.env.SHEETY_API_URL,
-    responseType: 'json',
     headers: {
         Authorization: `Bearer ${process.env.SHEETY_BEARER_TOKEN}`
     }
@@ -36,12 +35,19 @@ exports.slashCommand = async (req, res) => {
             res.status(204).send('');
         } else if (req.method === 'POST') {
             // Get user's OAuth access token
-            const accessTokenResponse = await sheetyApi.get(`?userId=${req.body.user_id}`);
-            console.log(accessTokenResponse);
-            const token = accessTokenResponse.accessTokens.pop().accessToken;
+            const accessTokenResponse = await sheetyApi.get(`?userId=${req.body.user_id}`).json();
+            // Sheety API is currently buggy, so multiple filters don't work
+            // This means we have to filter for team manually
+            const row = accessTokenResponse.accessTokens.first(row => row.teamId = req.body.team_id);
 
-            const web = new WebClient(token);
-            console.log(req.body);
+            if (!row) {
+                // Yep, it's a 200, telling SLack we were successful.
+                res.status(200)
+                    // Probably shouldn't hardcode the path, though🤔
+                    .send(`Oops, you need to authorize this app first.😕 You can do that by clicking here: https://${req.hostname}/out-to-lunch-dev-install`);
+            }
+
+            const web = new WebClient(row.accessToken);
 
             let timeInformation = req.body.text; // all the text after the slash command
             let timestampToEndStatusAt;
@@ -72,10 +78,11 @@ exports.slashCommand = async (req, res) => {
                 res.status(200).send(messages[Math.trunc(Math.random() * messages.length)]);
             });
         } else {
-            res.status(415).send('');
+            res.status(405).send('');
         }
     } catch (e) {
         console.error(e);
+        res.status(500).send(JSON.stringify(e));
     }
 
 };
@@ -88,19 +95,19 @@ exports.install = async (req, res) => {
 
     try {
         if (req.method !== 'GET') {
-            res.status(415).send('');
+            res.status(405).send('');
         }
 
         res.set('Content-Type', 'text/html');
         const html = `
-        <a href="https://slack.com/oauth/v2/authorize?scope=users.profile:write&client_id=${process.env.SLACK_CLIENT_ID}"><img alt="Sign in with Slack"" height="40" width="139" src="https://api.slack.com/img/sign_in_with_slack.png" /></a>
+        <a href="https://slack.com/oauth/authorize?scope=users.profile:write&client_id=${process.env.SLACK_CLIENT_ID}"><img alt="Sign in with Slack" height="40" width="172" src="https://platform.slack-edge.com/img/sign_in_with_slack.png" srcset="https://platform.slack-edge.com/img/sign_in_with_slack.png 1x, https://platform.slack-edge.com/img/sign_in_with_slack@2x.png 2x"/></a>
         `;
         res.status(200).send(html);
     } catch (e) {
         console.error(e);
+        res.status(500).send(JSON.stringify(e));
     }
 };
-
 
 exports.completeInstall = async (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');
@@ -110,31 +117,32 @@ exports.completeInstall = async (req, res) => {
 
     try {
         if (req.method !== 'GET') {
-            res.status(415).send('');
+            res.status(405).send('');
         }
 
         res.set('Content-Type', 'text/html');
 
         const web = new WebClient();
-        const accessResponse = await web.oauth.v2.access({
+        const accessResponse = await web.oauth.access({
             client_id: process.env.SLACK_CLIENT_ID,
             client_secret: process.env.SLACK_CLIENT_SECRET,
             code: req.query.code,
         });
+        console.log(accessResponse);
 
         if (accessResponse.error) {
             res.status(400).send("An error occured: " + accessResponse.error);
             return;
         }
 
-        const user = accessResponse.authed_user;
         // Store user token so we can use it later to change their status
         // We're using a Google Spreadsheet, made into an API via sheety.co
         await sheetyApi.post({
             json: {
                 accessToken: {
-                    userId: user.id,
-                    accessToken: user.access_token,
+                    userId: accessResponse.user_id,
+                    accessToken: accessResponse.access_token,
+                    teamId: accessResponse.team_id,
                 }
             }
         }).then(() => {
@@ -145,5 +153,6 @@ exports.completeInstall = async (req, res) => {
         });
     } catch (e) {
         console.error(e);
+        res.status(500).send(JSON.stringify(e));
     }
 };
