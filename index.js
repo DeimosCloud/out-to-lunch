@@ -50,9 +50,7 @@ exports.slashCommand = async (req, res) => {
                         status_expiration: timestampToEndStatusAt,
                     }
                 }),
-                // Slack is phasing out the user_name parameter,
-                // but fuck it, I dont want to make an extra request to fetch the user's name
-                got.post(webhookUrl, {json: {text: `_${req.body.user_name} is out to lunch until ${dateToEndStatusAt.toTimeString()}_`}})
+                got.post(webhookUrl, {json: {text: `_@<${req.body.user_id}> is out to lunch until ${dateToEndStatusAt.toTimeString()}_`}})
             ]).then(() => {
                 res.status(200).send(messages[Math.trunc(Math.random() * messages.length)]);
             });
