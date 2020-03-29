@@ -36,10 +36,10 @@ exports.slashCommand = async (req, res) => {
         } else if (req.method === 'POST') {
             // Get user's OAuth access token
             const accessTokenResponse = await sheetyApi.get(`?userId=${req.body.user_id}`).json();
-            const row = accessTokenResponse.accessTokens
+            const row = accessTokenResponse.accessTokens.pop();
             // Sheety API is currently buggy and multiple filters don't work properly
             // This means we'd need to filter for team manually.
-            // If you're building for a multi-team setup, you should uncomment this line👇
+            // If you're building for a multi-team setup, you would use this line👇
             //.find(row => row.teamId = req.body.team_id);
 
             if (!row) {
