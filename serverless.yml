@@ -17,6 +17,7 @@ provider:
     SLACK_CLIENT_SECRET: ${env:SLACK_CLIENT_SECRET}
     SHEETY_API_URL: ${env:SHEETY_API_URL}
     SHEETY_BEARER_TOKEN: ${env:SHEETY_BEARER_TOKEN}
+    SLACK_AUTH_PATH: out-to-lunch-dev-install
 
 plugins:
   - serverless-google-cloudfunctions

@@ -42,9 +42,9 @@ exports.slashCommand = async (req, res) => {
 
             if (!row) {
                 // Yep, it's a 200, telling SLack we were successful.
+                // but we don't have the user's auth info
                 res.status(200)
-                    // Probably shouldn't hardcode the path, though🤔
-                    .send(`Oops, you need to authorize this app first.😕 You can do that by clicking here: https://${req.hostname}/out-to-lunch-dev-install`);
+                    .send(`Oops, you need to authorize this app first.😕 You can do that by clicking here: https://${req.hostname}/${process.env.SLACK_AUTH_PATH}`);
             }
 
             const web = new WebClient(row.accessToken);
