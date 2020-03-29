@@ -3,14 +3,14 @@ service: out-to-lunch
 provider:
   name: google
   stage: dev
-  runtime: nodejs8
+  runtime: nodejs10
   region: us-central1
-  project: my-project
+  project: observability-253118
   # The GCF credentials can be a little tricky to set up. Luckily we've documented this for you here:
   # https://serverless.com/framework/docs/providers/google/guide/credentials/
   #
   # the path to the credentials file needs to be absolute
-  credentials: ~/.gcloud/keyfile.json
+  credentials: ./keyfile.json
 
 plugins:
   - serverless-google-cloudfunctions
@@ -24,21 +24,11 @@ package:
     - .git/**
 
 functions:
-  first:
-    handler: http
+  slashCommand:
+    handler: slashCommand
     events:
-      - http: path
-  # NOTE: the following uses an "event" event (pubSub event in this case).
-  # Please create the corresponding resources in the Google Cloud
-  # before deploying this service through Serverless
-  #second:
-  #  handler: event
-  #  events:
-  #    - event:
-  #        eventType: providers/cloud.pubsub/eventTypes/topic.publish
-  #        resource: projects/*/topics/my-topic
-# you can define resources, templates etc. the same way you would in a
-# Google Cloud deployment configuration
+      - http: slashCommand
+      
 #resources:
 #  resources:
 #    - type: storage.v1.bucket
