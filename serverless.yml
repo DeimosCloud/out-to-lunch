@@ -37,6 +37,11 @@ functions:
     handler: slashCommand
     events:
       - http: slashCommand
+
+  install:
+    handler: install
+    events:
+      - http: install
       
 #resources:
 #  resources:
