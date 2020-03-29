@@ -36,9 +36,11 @@ exports.slashCommand = async (req, res) => {
         } else if (req.method === 'POST') {
             // Get user's OAuth access token
             const accessTokenResponse = await sheetyApi.get(`?userId=${req.body.user_id}`).json();
-            // Sheety API is currently buggy, so multiple filters don't work
-            // This means we have to filter for team manually
-            const row = accessTokenResponse.accessTokens.find(row => row.teamId = req.body.team_id);
+            const row = accessTokenResponse.accessTokens
+            // Sheety API is currently buggy and multiple filters don't work properly
+            // This means we'd need to filter for team manually.
+            // If you're building for a multi-team setup, you should uncomment this line👇
+            //.find(row => row.teamId = req.body.team_id);
 
             if (!row) {
                 // Yep, it's a 200, telling SLack we were successful.
