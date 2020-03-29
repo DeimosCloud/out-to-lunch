@@ -9,6 +9,9 @@
   "author": "serverless.com",
   "license": "MIT",
   "devDependencies": {
-    "serverless-google-cloudfunctions": "*"
+    "serverless-google-cloudfunctions": "^2.4.2"
+  },
+  "dependencies": {
+    "@slack/web-api": "^5.8.0"
   }
 }
