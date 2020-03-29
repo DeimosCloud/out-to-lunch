@@ -11,9 +11,13 @@ provider:
   #
   # the path to the credentials file needs to be absolute
   credentials: ./keyfile.json
+  environment:
+    SLACK_WEBHOOK_URL: ${env:SLACK_WEBHOOK_URL}
+    SLACK_TOKEN: ${env:SLACK_TOKEN}
 
 plugins:
   - serverless-google-cloudfunctions
+  - serverless-dotenv-plugin
 
 # needs more granular excluding in production as only the serverless provider npm
 # package should be excluded (and not the whole node_modules directory)
@@ -22,6 +26,11 @@ package:
     - node_modules/**
     - .gitignore
     - .git/**
+    - "*.md"
+    - "keyfile.json"
+    - .idea/**
+    - .vscode/**
+    - .env.example
 
 functions:
   slashCommand:

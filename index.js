@@ -8,8 +8,6 @@ const webhookUrl = process.env.SLACK_WEBHOOK_URL;
 const token = process.env.SLACK_TOKEN;
 const web = new WebClient(token);
 
-process.on('unhandledRejection', console.error);
-
 exports.slashCommand = async (req, res) => {
     console.log(webhookUrl);
     res.set('Access-Control-Allow-Origin', '*');
@@ -22,6 +20,7 @@ exports.slashCommand = async (req, res) => {
             res.status(204).send('');
         } else if (req.method === 'POST') {
             let time = req.body.text;
+            console.log(req.body)
 
             const emojis = [
                 ":yum:", ":hamburger:", ":shallow_pan_of_food:", ":sandwich:", ":bread:",
