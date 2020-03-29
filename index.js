@@ -89,3 +89,53 @@ exports.install = async (req, res) => {
         console.error(e);
     }
 };
+
+
+exports.completeInstall = async (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'GET');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
+    res.set('Access-Control-Max-Age', '3600');
+
+    try {
+        if (req.method !== 'GET') {
+            res.status(415).send('');
+        }
+
+        res.set('Content-Type', 'text/html');
+
+        const web = new WebClient(token);
+        const accessResponse = await web.oauth.v2.access({
+            client_id: process.env.SLACK_CLIENT_ID,
+            client_secret: process.env.SLACK_CLIENT_SECRET,
+            code: req.query.code,
+        });
+
+        if (accessResponse.error) {
+            res.status(400).send("An error occured: " + accessResponse.error);
+            return;
+        }
+
+        const user = accessResponse.authed_user;
+        // Store user token so we can use it later to change their status
+        // We're using a Google Spreadsheet, made into an API via sheety.co
+        await got.post(process.env.SHEETY_API_URL, {
+            headers: {
+                Authorization: `Bearer ${process.env.SHEETY_BEARER_TOKEN}`
+            },
+            json: {
+                accessToken: {
+                    userId: user.id,
+                    accessToken: user.access_token,
+                }
+            }
+        }).then(() => {
+            res.status(200).send('Authorized!👍 To set your status in Slack to lunch at any time, use /lunch.');
+        }).catch(e => {
+            console.log(e);
+            res.status(500).send('Something went wrong ' + e);
+        });
+    } catch (e) {
+        console.error(e);
+    }
+};

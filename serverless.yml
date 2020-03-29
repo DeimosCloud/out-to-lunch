@@ -13,7 +13,10 @@ provider:
   credentials: ./keyfile.json
   environment:
     SLACK_WEBHOOK_URL: ${env:SLACK_WEBHOOK_URL}
-    SLACK_TOKEN: ${env:SLACK_TOKEN}
+    SLACK_CLIENT_ID: ${env:SLACK_CLIENT_ID}
+    SLACK_CLIENT_SECRET: ${env:SLACK_CLIENT_SECRET}
+    SHEETY_API_URL: ${env:SHEETY_API_URL}
+    SHEETY_BEARER_TOKEN: ${env:SHEETY_BEARER_TOKEN}
 
 plugins:
   - serverless-google-cloudfunctions
@@ -42,6 +45,11 @@ functions:
     handler: install
     events:
       - http: install
+
+  completeInstall:
+    handler: completeInstall
+    events:
+      - http: completeInstall
       
 #resources:
 #  resources:
