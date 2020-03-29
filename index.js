@@ -1,13 +1,19 @@
 'use strict';
 
 const {WebClient} = require('@slack/web-api');
-const { IncomingWebhook } = require('@slack/webhook');
+const {IncomingWebhook} = require('@slack/webhook');
 const webhookUrl = process.env.SLACK_WEBHOOK_URL;
 const webhook = new IncomingWebhook(webhookUrl);
 
 const got = require('got');
+const sheetyApi = got.extend({
+    prefixUrl: process.env.SHEETY_API_URL,
+    responseType: 'json',
+    headers: {
+        Authorization: `Bearer ${process.env.SHEETY_BEARER_TOKEN}`
+    }
+});
 
-const token = process.env.SLACK_TOKEN;
 const chrono = require('chrono-node');
 
 const emojis = [
@@ -29,6 +35,11 @@ exports.slashCommand = async (req, res) => {
             res.set('Access-Control-Max-Age', '3600');
             res.status(204).send('');
         } else if (req.method === 'POST') {
+            // Get user's OAuth access token
+            const accessTokenResponse = await sheetyApi.get(`?userId=${req.body.user_id}`);
+            console.log(accessTokenResponse);
+            const token = accessTokenResponse.accessTokens.pop().accessToken;
+
             const web = new WebClient(token);
             console.log(req.body);
 
@@ -56,7 +67,7 @@ exports.slashCommand = async (req, res) => {
                 webhook.send({
                     text:
                         `_<@${req.body.user_id}> is out to lunch until <!date^${timestampToEndStatusAt}^{time}|${dateToEndStatusAt.toTimeString()}>_`
-                }                )
+                })
             ]).then(() => {
                 res.status(200).send(messages[Math.trunc(Math.random() * messages.length)]);
             });
@@ -82,7 +93,7 @@ exports.install = async (req, res) => {
 
         res.set('Content-Type', 'text/html');
         const html = `
-        <a href="https://slack.com/oauth/v2/authorize?scope=commands,users:profile:write&client_id=${process.env.SLACK_CLIENt_ID}"><img alt=""Add to Slack"" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
+        <a href="https://slack.com/oauth/v2/authorize?scope=users.profile:write&client_id=${process.env.SLACK_CLIENT_ID}"><img alt="Sign in with Slack"" height="40" width="139" src="https://api.slack.com/img/sign_in_with_slack.png" /></a>
         `;
         res.status(200).send(html);
     } catch (e) {
@@ -104,7 +115,7 @@ exports.completeInstall = async (req, res) => {
 
         res.set('Content-Type', 'text/html');
 
-        const web = new WebClient(token);
+        const web = new WebClient();
         const accessResponse = await web.oauth.v2.access({
             client_id: process.env.SLACK_CLIENT_ID,
             client_secret: process.env.SLACK_CLIENT_SECRET,
@@ -119,10 +130,7 @@ exports.completeInstall = async (req, res) => {
         const user = accessResponse.authed_user;
         // Store user token so we can use it later to change their status
         // We're using a Google Spreadsheet, made into an API via sheety.co
-        await got.post(process.env.SHEETY_API_URL, {
-            headers: {
-                Authorization: `Bearer ${process.env.SHEETY_BEARER_TOKEN}`
-            },
+        await sheetyApi.post({
             json: {
                 accessToken: {
                     userId: user.id,
