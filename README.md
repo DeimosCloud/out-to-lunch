@@ -54,3 +54,6 @@ gcloud beta functions add-iam-policy-binding out-to-lunch-dev-slashCommand --reg
 gcloud beta functions add-iam-policy-binding out-to-lunch-dev-install --region=us-central1 --member=allUsers --role=roles/cloudfunctions.invoker --project=observability-253118
 gcloud beta functions add-iam-policy-binding out-to-lunch-dev-completeInstall --region=us-central1 --member=allUsers --role=roles/cloudfunctions.invoker --project=observability-253118
 ```
+
+## Local testing
+I haven't really optimized this for local testing yet.
