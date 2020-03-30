@@ -13,7 +13,7 @@ Assuming the registered slash command is `/lunch`, typing `/lunch for 2 hours` i
 ![](./notification.png)
 
 ## Tech stack and design
-This service is deployed as a set of Google Cloud Functions (via the [Serverless Framework](http://serverless.com)) with HTTP triggers. For data storage (storing user's access tokens), I'm using a simple solution—a Google Sheet, turned into an API via sheety.co.
+This service is deployed as a set of Google Cloud Functions (via the [Serverless Framework](http://serverless.com)) with HTTP triggers. For data storage (storing users' access tokens), I'm using a simple solution—a Google Sheet, turned into an API via [Sheety](http://sheety.co).
 
 The slashCommand `function` is the actual endpoint called by Slack when someone uses the command. The other functions, `install` and `completeInstall` are convenience URLs for users to authorize via OAuth (Sign in With Slack).
 
@@ -24,7 +24,7 @@ The slashCommand `function` is the actual endpoint called by Slack when someone 
 
 3. Copy the .env.example file to .env. Fill in the needed values.
   - For the SLACK_* variables, yo'll need a Slack app with an incoming webhook to the channel of your choice set up. For testing purposes, you can use the #slack-app-testing chanel.
-  - For the SHEETY_* variables, you can create a Google Sheet in the right format by cloning [this one](https://docs.google.com/spreadsheets/d/1cty8Bnyqd2Swgq929xvd8ZB3qKBb77JjJe7XDWcDffE/edit?usp=sharing). Then sign up on sheety.co, connect your sheet, enable GET and POST endpoints, and set a bearer token. 
+  - For the SHEETY_* variables, you can create a Google Sheet in the right format by cloning [this one](https://docs.google.com/spreadsheets/d/1cty8Bnyqd2Swgq929xvd8ZB3qKBb77JjJe7XDWcDffE/edit?usp=sharing). Then sign up on http://sheety.co, connect your sheet, enable GET and POST endpoints, and set a bearer token. 
 
 4. Ensure you have a Google service account with the following roles:
   - Cloud Functions Developer
