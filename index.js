@@ -15,8 +15,16 @@ const sheetyApi = got.extend({
 
 const chrono = require('chrono-node');
 
+Array.prototype.random = function () {
+    return this[Math.trunc(Math.random() * this.length)]
+};
+
 const emojis = [
     ":yum:", ":hamburger:", ":shallow_pan_of_food:", ":sandwich:", ":bread:",
+];
+
+const statuses = [
+    "Out to lunch", "At lunch",
 ];
 
 const messages = [
@@ -46,7 +54,7 @@ exports.slashCommand = async (req, res) => {
                 // Yep, it's a 200, telling SLack we were successful.
                 // but we don't have the user's auth info
                 res.status(200)
-                    .send(`Oops, you need to authorize this app first.😕 You can do that by clicking here: https://${req.hostname}/${process.env.SLACK_AUTH_PATH}`);
+                    .send(`Oops, you need to authorize this app first.😕 You can do that here: https://${req.hostname}/${process.env.SLACK_AUTH_PATH}`);
             }
 
             const web = new WebClient(row.accessToken);
@@ -65,8 +73,8 @@ exports.slashCommand = async (req, res) => {
             await Promise.all([
                 web.users.profile.set({
                     profile: {
-                        status_text: "Out to lunch",
-                        status_emoji: emojis[Math.trunc(Math.random() * emojis.length)],
+                        status_text: statuses.random(),
+                        status_emoji: emojis.random(),
                         status_expiration: timestampToEndStatusAt,
                     }
                 }),
@@ -77,7 +85,7 @@ exports.slashCommand = async (req, res) => {
                         `_<@${req.body.user_id}> is out to lunch until <!date^${timestampToEndStatusAt}^{time}|${dateToEndStatusAt.toTimeString()}>_`
                 })
             ]).then(() => {
-                res.status(200).send(messages[Math.trunc(Math.random() * messages.length)]);
+                res.status(200).send(messages.random());
             });
         } else {
             res.status(405).send('');
