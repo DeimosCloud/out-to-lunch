@@ -6,9 +6,11 @@ Assuming the registered slash command is `/lunch`, typing `/lunch for 2 hours` i
 1. Set your status to "Lunch", and set it to clear after 2 hours
 2. Post a message in a specified channel (#deimos, in our case) letting others know that you've gone to lunch.
 
-![](./response.png)
+<p align="center">
+<img src="./response.png">
 
-![](./notification.png)
+<img src="./notification.png">
+</p>
 
 ## Tech stack and design
 This service is deployed as a set of Google Cloud Functions (via the [Serverless Framework](http://serverless.com)) with HTTP triggers. For data storage (storing users' access tokens), I'm using a simple solution—a Google Sheet, turned into an API via [Sheety](http://sheety.co).
