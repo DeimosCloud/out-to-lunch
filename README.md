@@ -2,8 +2,6 @@
 Simple Slack slash command to let team members know you're away at lunch.
 
 ## Usage
-First, you'll need to visit the /install endpoint to authorize this app. For this project, this is https://us-central1-observability-253118.cloudfunctions.net/out-to-lunch-dev-install.
-
 Assuming the registered slash command is `/lunch`, typing `/lunch for 2 hours` in Slack will:
 1. Set your status to "Lunch", and set it to clear after 2 hours
 2. Post a message in a specified channel (#deimos, in our case) letting others know that you've gone to lunch.
