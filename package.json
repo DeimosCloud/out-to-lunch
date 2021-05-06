@@ -15,7 +15,7 @@
   "dependencies": {
     "@slack/web-api": "^5.8.0",
     "@slack/webhook": "^5.0.3",
-    "chrono-node": "^1.4.4",
+    "chrono-node": "^2.2.4",
     "got": "^10.7.0"
   }
 }
